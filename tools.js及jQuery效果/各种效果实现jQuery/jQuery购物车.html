@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="lib/artTemplate/template.js" type="text/javascript" charset="utf-8"></script>
+		<script src="lib/jquery_plugins/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			list-style: none;
+			text-decoration: none;
+		}
+		a{
+			color: red;
+		}
+		ul{
+			clear: both;
+			overflow: hidden;
+		}
+		ul li{
+			float: left;
+			padding: 0 10px;
+			border: 1px solid red;
+			margin: 0 10px;
+			text-align: center;
+		}
+		.a1{
+			background: green;
+			display: block;
+			width: 100px;
+			height: 20px;
+			line-height: 20px;
+		}
+		table tr td{
+			text-align: center;
+		}
+	</style>
+	</head>
+	<body>
+		<ul class="grid_2">
+		
+		<div class="clearfix"> </div>
+	</ul>
+	<!-- 创建模板：显示tshirt的数据 -->
+	<script type="text/html" id="tshirt_template">
+		{{each products as prod}}
+		<a href="javascript:void(0)" class=""><li>
+			<span style="display: none;" class="pid">{{prod.pid}}</span>
+			<img src="{{prod.img}}" class="img-responsive img" alt=""/>
+			<span class="btn5 price">{{prod.price}}</span>
+			<p class="title">{{prod.title}}</p>
+			<p class="a1">加入购物车</p>
+		</li></a>
+		{{/each}}
+	</script>
+
+	<div class="men cart cart_empty">
+	    <h1>It appears that your cart is currently empty!</h1>
+	    <h2>You can continue browsing <a href="javascript:void(0)">here</a>.</h2>
+    </div>
+		  <table  border=1 class="men cat cart_table" width="1000" cellpadding="0" cellspacing="0"  class="table">
+    	<thead>
+    		<tr>
+    			<td><label><input type="checkbox" class="ck_all" >全选</label></td>
+    			<td>编号</td>
+    			<td>图片</td>
+    			<td>标题</td>
+    			<td>单价</td>
+    			<td>数量</td>
+    			<td>小计</td>
+    			<td>操作</td>
+    		</tr>
+    	</thead>
+    	<tbody>
+    		
+    	</tbody>
+    	<tfoot>
+    		<tr>
+    			<td>合计</td>
+    			<td colspan="7">0.00</td>
+    		</tr>
+    	</tfoot>
+    	<button style="width: 100px;height: 30px;background: red;color: white;" class="clearAll">清空购物车</button>
+    	<button style="width: 100px;height: 30px;background: green;color: white;" class="end">商品结算</button>
+    </table>
+     <script type="text/html" id="cart_template">
+    	{{each products as prod}}
+    	<tr>
+    		<td><input type="checkbox" class="ck_prod"></td>
+    		<td class="pid">{{prod.pid}}</td>
+    		<td class="img"><img src="{{prod.img}}" style="width: 100px;height: 100px;"></td>
+    		<td class="title">{{prod.title}}</td>
+    		<td class="price">{{prod.price}}</td>
+    		<td><button class="minus">-</button><input type="text" value="{{prod.amount}}" size="2" class="amount"><button class="add">+</button></td>
+    		<td class="sub">{{(prod.amount*prod.price).toFixed(2)}}</td>
+    		<td><a href="javascript:void(0);" class="del">删除</a></td>
+    	</tr>
+    	{{/each}}
+    </script>
+    <script type="text/javascript">
+    /* 加载其它所有的tshirt */
+	$.getJSON("mock/tshirts.json", function(data){
+		// 渲染模板
+		let rendData = { // 准备渲染的数据
+			products : data.res_body.products
+		}
+		let html = template("tshirt_template", rendData); // 渲染
+		// 显示
+		$(".grid_2").prepend(html);
+	});
+	//加入购物车
+	$(".grid_2").on("click", "a", function(){
+		// 当前选购商品对象
+		let product = {
+			pid:$(this).find(".pid").text(),
+			title:$(this).find(".title").text(),
+			price:$(this).find(".price").text(),
+			img:$(this).find(".img").attr("src"),
+			amount:1
+		};
+		/* cookie */
+		$.cookie.json = true;
+		// 先查找cookie中是否已有保存购物车
+		let _products = $.cookie("products") || [],
+			index = exist(product.pid, _products);
+		if (index === -1) { // 新添加商品
+			_products.push(product);
+		} else { // 原已有添加，则修改数量
+			_products[index].amount++;
+		}
+		
+		// 重新保存回 cookie中
+		$.cookie("products", _products, {expires:7, path:"/"});
+		alert("购买成功");
+
+		/* 显示选购的所有商品总价 */
+		let sum = 0;
+		/*_products.forEach(function(prod){
+			sum += Number(prod.price);
+		});*/
+		$.each(_products, function(index, element){
+			// console.log(this === element);
+			sum += Number(this.price);
+		});
+		$(".bag_right p").text(sum);
+
+		return false;
+	});
+
+	// 查找指定id的商品在数组中的下标
+	function exist(id, products) {
+		for (let i = 0, len = products.length; i < len; i++) {
+			if (products[i].pid === id)
+				return i;
+		}
+
+		return -1;
+	}
+    /* 显示购物车数据 */
+	$.cookie.json = true;
+	// 读取cookie中保存的购物车数据
+	let _products = $.cookie("products") || [];
+	// 判断是否有购物车商品
+	if (_products.length === 0) {
+		$(".cart_empty").show().next(".cart_table").hide();
+	//return;
+	} else {
+		$(".cart_empty").hide().next(".cart_table").show();
+	}
+	// 渲染模板
+	let rendData = { products : _products },
+		html = template("cart_template", rendData);
+	$(".cart_table > tbody").html(html);
+
+	// 将_products中每个元素缓存到行中
+	$(".cart_table > tbody > tr").each(function(index, element){
+		// 在当前遍历到的行中缓存与之对应的商品对象数据
+		$(this).data("prod", _products[index]);
+	});
+
+	/*************************************************/
+	/***********购物车操作****************************/
+	/* 删除商品：事件委派 */
+	$(".cart_table").on("click", ".del", function(){
+		// 获取当前删除行中的商品对象
+		let _prod = $(this).parents("tr").data("prod");
+		// 查找其在_products数组中的索引
+		let _index = $.inArray(_prod, _products);
+		// 从数组中删除元素
+		_products.splice(_index, 1);
+		// 从cookie中删除(覆盖保存 _products 到 cookie 中)
+		$.cookie("products", _products, {expires:7, path:"/"});
+		// 从DOM中删除
+		$(this).parents("tr").remove();
+		
+		// 计算合计
+		calcTotal();
+	});
+	/* 数量+/- */
+	$(".cart_table").on("click", ".add,.minus", function(){
+		// 找出所在行中的商品对象
+		let _prod = $(this).parents("tr").data("prod");
+		// 数量+/-
+		let _amount = Number(_prod.amount);
+		if ($(this).is(".add")) { // 加
+			_amount++;
+		} else { // 减
+			if (_amount <= 1)
+				return;
+			_amount--;
+		}
+		_prod.amount = _amount;
+		// 保存cookie
+		$.cookie("products", _products, {expires:7, path:"/"});
+		// 页面渲染
+		$(this).siblings(".amount").val(_amount);
+		$(this).parents("tr").children(".sub").text((_prod.price * _amount).toFixed(2));
+
+		// 计算合计
+		calcTotal();
+	});
+	// 输入数量修改
+	$(".cart_table").on("blur", ".amount", function(){
+		let _prod = $(this).parents("tr").data("prod");
+		_prod.amount = $(this).val();
+		if(_prod.amount<=0){
+			alert("不能为负数！")
+			$(this).val(1);
+			_prod.amount = $(this).val();
+		}
+		// 保存cookie
+		$.cookie("products", _products, {expires:7, path:"/"});
+		// 页面渲染
+		$(this).parents("tr").children(".sub").text((_prod.price * _prod.amount).toFixed(2));
+
+		// 计算合计
+		calcTotal();
+	});
+	/* 全选 */
+	$(".ck_all").click(function(){
+		// 获取“全选”复选框选中状态
+		let status = $(this).prop("checked");
+		// 设置所有行前复选框选中状态与“全选”一致
+		$(".ck_prod").prop("checked", status);
+		// 计算合计
+		calcTotal();
+	});
+	/* 部分选中 */
+	$(".cart_table").on("click", ".ck_prod", function(){
+		$(".ck_all").prop("checked", $(".ck_prod:checked").length === _products.length)
+		/*if ($(".ck_prod:checked").legnth === _products.length)
+			$(".ck_all").prop("checked", true);
+		else
+			$(".ck_all").prop("checked", false);*/
+
+		// 计算合计
+		calcTotal();
+	});
+	/* 计算合计金额 */
+	function calcTotal() {
+		let total = 0;
+		$(".ck_prod:checked").each(function(){
+			total += Number($(this).parents("tr").children(".sub").text())
+		});
+		$(".cart_table > tfoot td:last").text(total);
+	}
+	//清空购物车;
+	$(".clearAll").on("click",function(){
+		//清除DOM节点;
+		$("tbody tr").remove();
+		//清除cookie;
+		_products = [];
+		$.cookie("products", _products, {expires:-1, path:"/"});
+	});
+	//结算商品;
+	//是否存在总价subs，可省略;
+	function  ex(subs,pros){
+		for (let i=0;i<pros.length;i++) {
+			if(subs==pros[i].subs)
+			return i 
+		}
+		return -1;
+	}
+	$(".end").on("click",function(){
+		//定义结算的cookie;
+		$.cookie.json = true;
+		let pros= $.cookie("pros") || [];
+		console.log(pros);
+		let cks = $(".ck_prod:checked");
+		for (let i = 0;i<cks.length;i++) {
+			let pro = {
+				pid:$(cks[i]).parents("tr").find(".pid").text(),
+				title:$(cks[i]).parents("tr").find(".title").text(),
+				price:$(cks[i]).parents("tr").find(".price").text(),
+				img:$(cks[i]).parents("tr").find(".img").attr("src"),
+				amount:Number($(cks[i]).parents("tr").find(".amount").val()),
+				sub:Number($(cks[i]).parents("tr").find(".sub").text())
+			}
+		//业务逻辑，根据实际情况来操作
+		index = exist(pro.pid, pros);
+		if (index === -1) { // 新添加商品
+			pros.push(pro);	
+		} else { // 原已有添加，则修改相应数值;
+			pros[index].amount += pro.amount;
+			pros[index].sub += pro.sub;
+		}	
+		}	
+		$.cookie("pros",pros,{expires:7,path:"/"});
+	})
+    </script>
+	</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.floor {
+			height:800px;
+		}
+		#menu {
+			width: 50px;
+			border: 1px solid;
+			margin: 0;
+			padding: 0;
+			position: fixed;
+			left: 50px;
+			bottom: 100px;
+			list-style: none;
+			text-align: center;
+			display: none;
+			background: #fff;
+		}
+
+		#menu li {
+			height:30px;
+			line-height: 30px;
+			border-bottom: 1px solid #666;
+			position: relative;
+		}
+
+		#menu li span {
+			display: none;
+			width: 100%;
+			height: 30px;
+			line-height: 30px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background: #ff0;
+		}
+		#menu .top{
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body style="height:3000px;">
+	<button id="btn">跳转</button>
+	<div class="header" style="height:300px; background: #ccc;"></div>
+	<div class="content">
+		<pre>
+			兼容：
+	event = event || window.event;
+	event.which || event.keyCode;
+	event.target || event.srcElement;
+	event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true;
+
+默认动作：
+	右键菜单
+	超级链接跳转
+	表单提交
+	......
+
+阻止默认动作：
+	标准：event.preventDefault()
+	非标准：event.returnValue = false;
+
+	event.preventDefault ? event.preventDefault() : event.returnValue = false;
+
+	<a href="javascript:void(0);">删除</a>
+
+	事件函数中 return false;
+
+简易拖拽效果：
+	事件：
+		mousedown
+			事件源：待拖拽的元素
+			获取光标在事件源元素坐标系中的坐标位置
+			绑定鼠标移动事件
+		mousemove
+			事件源：document
+			计算移动过程中元素的定位位置
+		mouseup
+			事件源：document
+			移除鼠标移动事件
+
+event.offsetX/Y
+event.clientX/Y
+event.pageX/Y
+
+计算宽高值：
+	element.clientWidth
+	element.clientHeight
+		-- 边框以内的宽/高度，不包括滚动条的宽高（包括padding+width|height-滚动条宽|高）
+	element.offsetWidth
+	element.offsetHeight
+		-- 边框及边框以内的宽/高度（包括border + padding + width|height）
+
+获取窗口的宽度：
+	document.documentElement.clientWidth || document.body.clientWidth
+
+获取元素相对其有定位的祖先元素坐标系中坐标定位：
+	element.offsetLeft
+	element.offsetTop
+获取有定位的祖先元素：
+	element.offsetParent
+		</pre>
+	</div>
+	
+	<div class="main">
+		<div class="floor" style="background: #f00;">1L</div>
+		<div class="floor" style="background: #ff0;">2L</div>
+		<div class="floor" style="background: #f0f;">3L</div>
+		<div class="floor" style="background: #0ff;">4L</div>
+		<div class="floor" style="background: #00f;">5L</div>
+	</div>
+
+	<ul id="menu">
+		<li class="floorMenuItem">1L<span style="display: block;">常备</span></li>
+		<li class="floorMenuItem">2L<span>专科</span></li>
+		<li class="floorMenuItem">3L<span>保健</span></li>
+		<li class="floorMenuItem">4L<span>医疗</span></li>
+		<li class="floorMenuItem">5L<span>器械</span></li>
+		<li class="top">TOP</li>
+	</ul>
+
+	<script src="js/tools.js"></script>
+	<script>
+		$("#btn").onclick = function(){
+			document.documentElement.scrollTop = document.body.scrollTop = 1000;
+		}
+
+		// 所有楼层
+		var floors = $(".floor");
+		// 楼层对应的菜单项
+		var lis = $(".floorMenuItem", $("#menu"));
+		// 1L楼层布局距离文档顶部的间距
+		var _top = $(floors[0]).offset().top;
+		// 窗口高度
+		var winHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+		window.onscroll = function(){
+			var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+			// 滚动显示楼层菜单
+			if (scrollTop >= _top - winHeight / 2) {
+				show($("#menu"));
+			} else {
+				hide($("#menu"));
+			}
+			// 处理楼层菜单文字
+			Array.from(floors).forEach(function(floor, index){
+				// 当前楼层以上的布局结构高度
+				var _top = offset(floor).top;
+				if (scrollTop > _top - winHeight / 2) {
+					Array.from(lis).forEach(function(menuItem){
+						hide(menuItem.children[0]);
+					});
+					show(lis[index].children[0]);
+				}
+			});
+		}
+
+		// 为每个楼层菜单项绑定点击事件
+		Array.from(lis).forEach(function(menuItem, index){
+			menuItem.onclick = function(){
+				// 计算当前点击菜单项对应楼层在文档中定位高度
+				var _top = offset(floors[index]).top;
+				/* 滚动动画 */
+				// document.documentElement.scrollTop = document.body.scrollTop = _top;
+
+				// 获取当前滚动高度
+				var start = document.documentElement.scrollTop || document.body.scrollTop;
+				// 滚动动画运动区间值
+				var range = _top - start;
+				// 记录运动开始时间
+				var startTime = +new Date();
+				// 运动总时间
+				var speed = 3000;
+				// 启动计时器
+				window.timer = setInterval(function(){
+					// 计算运动经过时间
+					var elapsed = Math.min(+new Date() - startTime, speed);
+					// 运动到？
+					var result = elapsed * range / speed + start;
+					// 设置 
+					document.documentElement.scrollTop = document.body.scrollTop = result;
+
+					if (elapsed === speed)
+						clearInterval(window.timer);
+				}, 1000/60);
+			}
+		});
+		//top
+		$(".top").on("click",function(){
+			document.documentElement.scrollTop = document.body.scrollTop = 0;
+			console.log("haha")
+		});
+	</script>
+</body>
+</html>

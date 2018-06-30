@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		#container {
+			width: 90%;
+			position: relative;
+			margin: 0 auto;
+		}
+
+		#container div {
+			width: 200px;
+			padding: 5px;
+			border:1px solid;
+			border-radius: 5px;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		#container div img {
+			width: 200px;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="container">
+		<div><img src="images/imgs (1).jpg"></div>
+		<div><img src="images/imgs (2).jpg"></div>
+		<div><img src="images/imgs (3).jpg"></div>
+		<div><img src="images/imgs (4).jpg"></div>
+		<div><img src="images/imgs (5).jpg"></div>
+		<div><img src="images/imgs (6).jpg"></div>
+		<div><img src="images/imgs (7).jpg"></div>
+		<div><img src="images/imgs (8).jpg"></div>
+		<div><img src="images/imgs (9).jpg"></div>
+		<div><img src="images/imgs (10).jpg"></div>
+		<div><img src="images/imgs (11).jpg"></div>
+		<div><img src="images/imgs (12).jpg"></div>
+		<div><img src="images/imgs (13).jpg"></div>
+		<div><img src="images/imgs (14).jpg"></div>
+		<div><img src="images/imgs (15).jpg"></div>
+		<div><img src="images/imgs (16).jpg"></div>
+		<div><img src="images/imgs (17).jpg"></div>
+		<div><img src="images/imgs (18).jpg"></div>
+		<div><img src="images/imgs (19).jpg"></div>
+		<div><img src="images/imgs (20).jpg"></div>
+		<div><img src="images/imgs (21).jpg"></div>
+		<div><img src="images/imgs (22).jpg"></div>
+		<div><img src="images/imgs (23).jpg"></div>
+		<div><img src="images/imgs (24).jpg"></div>
+		<div><img src="images/imgs (25).jpg"></div>
+		<div><img src="images/imgs (26).jpg"></div>
+		<div><img src="images/imgs (27).jpg"></div>
+		<div><img src="images/imgs (28).jpg"></div>
+		<div><img src="images/imgs (29).jpg"></div>
+	</div>
+
+	<script src="js/tools.js"></script>
+	<script>
+		// 瀑布流
+		// 绝对定位方式布局
+		window.onload = waterfall;
+		window.onresize = waterfall;
+
+		function waterfall(){
+			// 动态求解每行放置的列数
+			var containerWidth = $("#container").clientWidth, // 容器宽度
+				imgBoxes = $("div", $("#container")), // 所有待定位的图片盒子
+				colWidth = imgBoxes[0].offsetWidth, // 列宽度
+				cols = Math.floor(containerWidth / colWidth), // 列数
+				spacing = (containerWidth - cols * colWidth) / (cols + 1), // 间距
+				height = new Array(cols); // 数组，放置各列高度
+			// 为数组每个元素赋值为0
+			height.fill(0);
+
+			// 循环为每个元素定位，按顺序从左向右定位
+			for (var i = 0; i < imgBoxes.length; i++) {
+				var currColIndex = i % cols;
+				imgBoxes[i].style.left = (currColIndex + 1) * spacing + currColIndex * colWidth + "px";
+				imgBoxes[i].style.top = height[currColIndex] + 10 + "px";
+
+				height[currColIndex] += imgBoxes[i].offsetHeight + 10;
+			}
+
+			// 循环为每个元素定位，按最短列定位
+
+			/*
+			// 定位第一行
+			console.log(height);
+
+			for (; i < imgBoxes.length; i++) {
+				var currColIndex = i % 5;
+				imgBoxes[i].style.left = (currColIndex + 1) * spacing + currColIndex * colWidth + "px";
+				imgBoxes[i].style.top = height[currColIndex] + 10 + "px";
+				height[currColIndex] += imgBoxes[i].offsetHeight + 10;
+			}
+
+			// 定位第二行
+			for (; i < 10; i++) {
+				var currColIndex = i % 5;
+				imgBoxes[i].style.left = (currColIndex + 1) * spacing + currColIndex * colWidth + "px";
+				imgBoxes[i].style.top = height[currColIndex] + 10 + "px";
+				height[currColIndex] += imgBoxes[i].offsetHeight + 10;
+			}
+
+			// 定位第三行
+			for (; i < 15; i++) {
+				var currColIndex = i % 5;
+				imgBoxes[i].style.left = (currColIndex + 1) * spacing + currColIndex * colWidth + "px";
+				imgBoxes[i].style.top = height[currColIndex] + 10 + "px";
+				height[currColIndex] += imgBoxes[i].offsetHeight + 10;
+			}*/
+		}
+	</script>
+</body>
+</html>

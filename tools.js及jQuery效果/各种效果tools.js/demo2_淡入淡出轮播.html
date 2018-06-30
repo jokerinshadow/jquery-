@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		* {margin: 0;padding: 0;}
+		#container {
+			width: 590px;
+			height: 470px;
+			position: relative;
+			margin: 50px auto;
+			overflow: visible;
+		}
+
+		ul {
+			width: 590px;
+			height: 470px;
+			list-style: none;
+		}
+
+		li {
+			width: 590px;
+			height: 470px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			display: none;
+		}
+		.pages {
+			width: 590px;
+			height: 30px;
+			position: absolute;
+			bottom: 0;
+			background: #000;
+		}
+		.pages i {
+			display: inline-block;
+			width:20px;
+			height: 20px;
+			border-radius: 10px;
+			background: #fff;
+			margin:5px;
+		}
+
+		/*.pages i.current {
+			background: #f00;
+		}*/
+
+		.prev, .next {
+			width: 45px;
+			height: 100px;
+			background: #000;
+			color: #fff;
+			position: absolute;
+			top:0;
+			bottom: 0;
+			margin:auto;
+			text-align: center;
+			line-height: 100px;
+			font-size:40px;
+			cursor: pointer;
+		}
+		.next {
+			right: 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<!-- 图片 -->
+		<ul>
+			<li style="display: block;"><a href="#"><img src="images/1.jpg"></a></li>
+			<li><a href="#"><img src="images/2.jpg"></a></li>
+			<li><a href="#"><img src="images/3.jpg"></a></li>
+			<li><a href="#"><img src="images/4.jpg"></a></li>
+		</ul>
+		<!-- 小圆点 -->
+		<div class="pages">
+			<i style="background: red;"></i>
+			<i></i>
+			<i></i>
+			<i></i>
+		</div>
+		<!-- 向前/后 -->
+		<div class="prev">&lt;</div>
+		<div class="next">&gt;</div>
+	</div>
+
+<!--	<script src="js/tools.js"></script>-->
+	<script>
+		function $(selector,context){
+				context = context || document;
+				return context.querySelectorAll(selector);//只是针对单元素的选择
+		}
+	function animate(element, options, speed, fn) {
+	// 停止element元素上已有运动计时器
+	clearInterval(element.timer);
+	// 求各属性初值、区间
+	var start = {}, range = {};
+	for (var attr in options) {
+		start[attr] = parseFloat(css(element, attr));
+		range[attr] = options[attr] - start[attr];
+	}
+	// 记录启动计时器时间
+	var startTime = +new Date();
+	// 启动计时器，实现运动动画效果
+	element.timer = setInterval(function(){
+		// 计算运动时长
+		var elapsed = Math.min(+new Date() - startTime, speed);
+		// 计算各属性当前步位置
+		for (var attr in options) {
+			// 线性运动
+			var result = elapsed * range[attr] / speed + start[attr];
+			// 设置CSS
+			css(element, attr, result + (attr === "opacity" ? "" : "px"));
+		}
+		// 判断是否结束
+		if (elapsed === speed) { // 运动结束
+			clearInterval(element.timer);
+			// 如果运动结束后有继续执行的函数，则调用
+			fn && fn();
+		}
+	}, 1000/60);
+}
+
+/**
+   * 淡入
+   */
+function fadeIn(element, speed, fn) {
+	show(element);
+	element.style.opacity = 0;
+	animate(element, {opacity: 1}, speed, fn);
+}
+
+/**
+   * 淡出
+   */
+function fadeOut(element, speed, fn) {
+	animate(element, {opacity: 0}, speed, function(){
+		hide(element);
+		fn && fn();
+	});
+}
+function css(element, attr, value) {
+	if (typeof attr === "object") { // 传递的 attr 参数为对象的结构，表示设置CSS属性
+		for (var attrName in attr) {
+			element.style[attrName] = attr[attrName];
+		}
+	} else if (typeof attr === "string") { // 传递的 attr 为字符串，则可能为获取CSS样式，也可能是为某单个CSS属性设置值
+		// 判断是否传递 value 参数
+		if (typeof value === "undefined")
+			return window.getComputedStyle
+					? window.getComputedStyle(element)[attr]
+					: element.currentStyle[attr];
+
+		// 设置 CSS 样式
+		element.style[attr] = value;
+	}
+}
+/**
+   * 显示元素
+   */
+function show(element) {
+	element.style.display = "block";
+}
+function hide(element){
+	element.style.display = "none";
+}
+
+/**
+ * 隐藏元素
+ */
+
+		var lis = $("li"), // 所有待轮播切换的图片盒子
+			len = lis.length, // 图片张数
+			currentIndex = 0, // 当前正显示图片的索引
+			nextIndex = 1, // 即将显示图片的索引
+			circles = $("i"), // 所有小圆点
+			timer = null; // 轮播计时器
+		// 自动轮播
+		timer = setInterval(move, 3000);
+
+		// 轮播切换
+		function move(){
+			// 当前显示的图片淡出			
+			fadeOut(lis[currentIndex], 400);
+//			// 即将显示的图片淡入
+			fadeIn(lis[nextIndex], 400);
+//			// 修改小圆点样式
+			circles[currentIndex].style.background = "white";
+			circles[nextIndex].style.background = "red";
+
+			// 修改待操作图片索引
+			currentIndex = nextIndex;
+			nextIndex++;
+			if (nextIndex >= len)
+				nextIndex = 0;
+		}
+		// 鼠标移入容器范围，停止自动轮播，移出容器范围，启动自动轮播
+		$("#container")[0].onmouseenter = function(){
+			clearInterval(timer);
+		}
+		$("#container")[0].onmouseleave = function(){
+			timer = setInterval(move, 3000);
+		}
+
+		// 小圆点移入，切换对应图片，为每个小圆点绑定移入事件
+		/*for (var i = 0; i < len; i++) {
+			circles[i].index = i;
+			circles[i].onmouseover = function(){
+				// 获取当前移入小圆点的索引
+				var index = this.index;
+				if (currentIndex === index)
+					return;
+				// 设置即将显示图片的索引
+				nextIndex = index;
+				// 切换
+				move();
+			}
+		}
+		for (let i = 0; i < len; i++) {
+			circles[i].onmouseover = function(){
+				// 获取当前移入小圆点的索引
+				if (currentIndex === i)
+					return;
+				// 设置即将显示图片的索引
+				nextIndex = i;
+				// 切换
+				move();
+			}
+		}*/
+		$(".pages")[0].onmouseover = function(e){
+			e = e || event;
+			var src = e.target || e.srcElement;
+			if (src !== this) {
+				// 获取 src 所表示小圆点在所有小圆点中的索引
+				for (var i = 0; i < len; i++) {
+					if (src === circles[i]) {
+						nextIndex = i;
+						move();
+						break;
+					}
+				}
+			}
+		}
+
+		// 向前/向后
+		$(".prev")[0].onclick = function(){
+			nextIndex = currentIndex - 1;
+			if (nextIndex < 0)
+				nextIndex = len - 1;
+			move();
+		}
+		$(".next")[0].onclick = move;
+	</script>
+</body>
+</html>

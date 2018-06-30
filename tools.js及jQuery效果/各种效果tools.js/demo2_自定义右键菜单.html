@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		#context-menu {
+			width: 100px;
+			height: 100px;
+			margin: 0;
+			padding: 0;
+			border: 1px solid;
+			overflow: hidden;
+			display: none;
+			position: absolute;
+		}
+		li {
+			width: 100px;
+			height: 30px;			
+			line-height: 30px;
+			margin: 3px 0;
+			text-align: center;
+			border-bottom: 1px solid;
+		}
+	</style>
+</head>
+<body>
+	
+	<ul id="context-menu">
+		<li>复制</li>
+		<li>粘贴</li>
+		<li>剪切</li>
+	</ul>
+
+	<script src="js/tools.js"></script>
+	<script>
+		document.oncontextmenu = function(e){
+			e = e || window.event;
+			// 阻止弹出浏览器自身的右键菜单
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+			// 显示自定义的右键菜单
+			show($("#context-menu"));
+			// 设置元素定位位置
+			css($("#context-menu"), {
+				top : e.clientY + "px",
+				left : e.clientX + "px"
+			});
+		}
+
+		document.onclick = function(){
+			hide($("#context-menu"));
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.search{
+				background: red;
+				height: 100px;
+				position: fixed;
+				width: 100%;
+				top: -100px;
+			}
+		</style>
+	</head>
+	<body style="height: 3000px;">
+		<div class="search">
+			<input type="text" name="" id="" value="" />
+			<button>search</button>
+		</div>
+		<script type="text/javascript">
+			var search = $(".search");
+			var isSlideDown = false; // 是否下拉展开
+			window.onscroll = function(){
+			var _scrollTop = document.documentElement.scrollTop || document.body.scrollTop;//获取搜索条的高度
+			if (_scrollTop >= 1000) {
+				if (!isSlideDown) {
+					isSlideDown = true;
+					search.show();
+					search.css("height", "0px");
+					search.animate({height: 100,top:0}, 2000);
+//					search.animate({top : 0}, 2000);
+				}
+			} else {
+				search.hide();
+//				search.css("top", "-100px");
+				isSlideDown = false;
+			}
+			}
+		</script>
+	</body>
+</html>

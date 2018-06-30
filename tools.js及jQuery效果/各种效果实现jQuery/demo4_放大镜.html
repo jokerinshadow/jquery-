@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.middle {
+			width: 400px;
+			height: 400px;
+			position: absolute;
+			top:100px;
+			left:50px;
+			border: 1px solid;
+		}
+
+		.middle img {
+			width: 400px;
+			height: 400px;
+		}
+
+		.len {
+			width: 200px;
+			height: 200px;
+			background: #f00;
+			position: absolute;
+			top: 0;
+			left: 0;
+			opacity: 0.5;
+			display: none;
+		}
+
+		.big {
+			width: 400px;
+			height: 400px;
+			position: absolute;
+			top : 100px;
+			left : 500px;
+			border:1px solid;
+			overflow: hidden;
+			display: none;
+		}
+
+		.big img {
+			width: 800px;
+			height: 800px;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	</style>
+</head>
+<body>
+	<div class="middle">
+		<img src="images/middle.jpg">
+		<div class="len"></div>
+	</div>
+	<div class="big">
+		<img src="images/big.jpg" id="big_img">
+	</div>
+
+	<script src="jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		$(".middle").on("mouseenter",function(){
+			$(".len").show();
+			$(".big").show();
+		}); 
+		
+		$(".middle").on("mouseleave",function(){
+			$(".len").hide();
+			$(".big").hide();
+		});
+		
+		$(".middle").on("mousemove",function(e){
+			e = e || event;
+			// 设置镜头在文档中定位
+			$(".len").offset({
+				top : e.pageY - 100,
+				left : e.pageX - 100
+			});
+			// 获取镜头在其有定位的父元素坐标系中的坐标
+			console.log($(".len"))
+			var _top = $(".len").offset().top,
+				_left = $(".len").offset().left;
+			console.log(_top);
+			// 判断是否超出范围
+			if (_top < 0)
+				_top = 0;
+			else if (_top > 200)
+				_top = 200;
+			if (_left < 0)
+				_left = 0;
+			else if (_left > 200)
+				_left = 200
+			$(".len").css({
+				top : _top,
+				left : _left
+			});
+			// 移动放大图片
+			$("#big_img").css({
+				top : -2 * _top,
+				left : -2 * _left
+			});
+		})
+		// e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)
+	</script>
+</body>
+</html>

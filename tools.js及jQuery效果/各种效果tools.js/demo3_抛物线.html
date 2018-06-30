@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<button id="btn">开始</button>
+
+	<div id="start" style="width:20px; height: 20px; background: #f00; position: absolute; top: 600px; left:50px; border-radius: 10px;"></div>
+	<div id="end" style="width:20px; height: 20px; background: #666; position: absolute; top: 500px; left:500px; border-radius: 10px;"></div>
+
+	<script src="js/tools.js"></script>
+	<script>
+		// 公式：y = a * x ^ 2 + b * x + c
+		// a 的正负决定开口方向，a>0，开口向上，a < 0，开口向下
+		// a 越大，开口越小
+
+		// a 固定取值
+		// c = 0
+		// b = (y - a * x ^ 2) / x
+		// ==> y = a * x * x + b * x
+
+
+		$("#btn").onclick = function(){
+			var element = $("#start");
+			// 抛物线上两个坐标点：
+			var src = offset(element),
+				dest = offset($("#end"));
+			// 将源src坐标点平移到原点处，则
+			// 平移后，目标dest坐标点位置
+			var x = dest.left - src.left,
+				y = dest.top - src.top;
+			// 二次函数系数
+			var a = 0.01,
+				c = 0,
+				b = (y - a * x * x) / x;
+
+			// 抛物线水平方向匀速运动
+			var speed = 3000,
+				startTime = +new Date();
+
+			var timer = setInterval(function(){
+				var elapsed = Math.min(+new Date() - startTime, speed);
+				var _x = elapsed * x / speed,
+					_y = a * _x * _x + b * _x + c;
+				css(element, {
+					top : _y + src.top + "px",
+					left : _x + src.left + "px"
+				});
+				if (elapsed === speed) {
+					clearInterval(timer);
+				}
+			}, 1000/60);
+		}
+	</script>
+</body>
+</html>

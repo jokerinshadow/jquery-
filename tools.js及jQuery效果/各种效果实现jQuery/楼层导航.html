@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.floor {
+			height:800px;
+		}
+		#menu {
+			width: 50px;
+			border: 1px solid;
+			margin: 0;
+			padding: 0;
+			position: fixed;
+			left: 50px;
+			bottom: 100px;
+			list-style: none;
+			text-align: center;
+			display: none;
+			background: #fff;
+		}
+
+		#menu li {
+			height:30px;
+			line-height: 30px;
+			border-bottom: 1px solid #666;
+			position: relative;
+		}
+
+		#menu li span {
+			display: none;
+			width: 100%;
+			height: 30px;
+			line-height: 30px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background: #ff0;
+		}
+	</style>
+</head>
+<body style="height:3000px;">
+	<button id="btn">跳转</button>
+	<div class="header" style="height:300px; background: #ccc;"></div>
+	<div class="content" style="height: 700PX;">
+		<pre>
+			
+		</pre>
+	</div>
+	
+	<div class="main">
+		<div class="floor" style="background: #f00;">1L</div>
+		<div class="floor" style="background: #ff0;">2L</div>
+		<div class="floor" style="background: #f0f;">3L</div>
+		<div class="floor" style="background: #0ff;">4L</div>
+		<div class="floor" style="background: #00f;">5L</div>
+	</div>
+
+	<ul id="menu">
+		<li class="floorMenuItem">1L<span style="display: block;">常备</span></li>
+		<li class="floorMenuItem">2L<span>专科</span></li>
+		<li class="floorMenuItem">3L<span>保健</span></li>
+		<li class="floorMenuItem">4L<span>医疗</span></li>
+		<li class="floorMenuItem">5L<span>器械</span></li>
+		<li>TOP</li>
+	</ul>
+	
+	<script src="jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		$("#btn").click("on",function(){
+			document.documentElement.scrollTop = document.body.scrollTop = 1000;
+		}); 
+
+		// 所有楼层
+		var floors = $(".floor");
+		// 楼层对应的菜单项
+		var lis = $(".floorMenuItem", $("#menu"));
+		// 1L楼层布局距离文档顶部的间距
+		var _top =$(floors[0]).offset().top;
+		// 窗口高度
+		var winHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+		window.onscroll = function(){
+			var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+			// 滚动显示楼层菜单
+			if (scrollTop >= _top - winHeight / 2) {
+				$("#menu").show();
+			} else {
+				$("#menu").hide();
+			}
+			// 处理楼层菜单文字
+			Array.from(floors).forEach(function(floor, index){
+				// 当前楼层以上的布局结构高度
+				var _top = $(floor).offset().top;
+				if (scrollTop > _top - winHeight / 2) {
+					Array.from(lis).forEach(function(menuItem){
+						$(menuItem.children[0]).hide();
+					});
+					$(lis[index].children[0]).show();
+				}
+			});
+		}
+
+		// 为每个楼层菜单项绑定点击事件
+		Array.from(lis).forEach(function(menuItem, index){
+			$(menuItem).on("click",function(){
+				// 计算当前点击菜单项对应楼层在文档中定位高度
+				var _top = $(floors[index]).offset().top;
+				/* 滚动动画 */
+				// document.documentElement.scrollTop = document.body.scrollTop = _top;
+
+				// 获取当前滚动高度
+				var start = document.documentElement.scrollTop || document.body.scrollTop;
+				// 滚动动画运动区间值
+				var range = _top - start;
+				// 记录运动开始时间
+				var startTime = +new Date();
+				// 运动总时间
+				var speed = 3000;
+				// 启动计时器
+				window.timer = setInterval(function(){
+					// 计算运动经过时间
+					var elapsed = Math.min(+new Date() - startTime, speed);
+					// 运动到？
+					var result = elapsed * range / speed + start;
+					// 设置 
+					document.documentElement.scrollTop = document.body.scrollTop = result;
+
+					if (elapsed === speed)
+						clearInterval(window.timer);
+				}, 1000/60);
+			});
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+	"res_code":"0",
+	"res_error":"",
+	"res_body":{
+		"products":[
+			{"pid":2, "title":"Bikroy Tshirt - Roundneck", "price":120, "img":"images/pic2.png"},
+			{"pid":3, "title":"Park Tshirt - Partygrandd", "price":340, "img":"images/pic3.png"},
+			{"pid":4, "title":"Gray Tshirt Roundneckdd", "price":250, "img":"images/pic4.png"},
+			{"pid":5, "title":"Marivo Tshirt - Roundneck", "price":378, "img":"images/pic5.png"},
+			{"pid":6, "title":"Strict TshirtSoft, Pure Cotton", "price":428, "img":"images/pic6.png"}
+		]
+	}
+}

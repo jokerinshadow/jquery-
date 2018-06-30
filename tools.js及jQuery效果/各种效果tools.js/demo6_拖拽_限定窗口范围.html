@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		#box {
+			width: 200px;
+			height: 200px;
+			background: #f00;
+			position: absolute;
+			top: 100px;
+			left: 50px;
+		}
+	</style>
+</head>
+<body>
+	<div id="box"></div>
+
+	<script src="js/tools.js"></script>
+	<script>
+
+		// 求窗口的宽高、元素的宽高
+		var winWidth = document.documentElement.clientWidth || document.body.clientWidth,
+			winHeight = document.documentElement.clientHeight || document.body.clientHeight,
+			boxWidth = $("#box").offsetWidth,
+			boxHeight = $("#box").offsetHeight;
+
+		$("#box").onmousedown = function(e){
+			e = e || event;
+			var _offsetX = e.offsetX,
+				_offsetY = e.offsetY;
+			document.onmousemove = function(e){
+				e = e || event;
+				// 计算定位位置
+				var _top = e.clientY - _offsetY,
+					_left = e.clientX - _offsetX;
+				// 判断是否超出范围
+				if (_top < 0)
+					_top = 0;
+				else if(_top > winHeight - boxHeight)
+					_top = winHeight - boxHeight;
+
+				if (_left < 0)
+					_left = 0;
+				else if (_left > winWidth - boxWidth)
+					_left = winWidth - boxWidth;
+				// 设置css
+				css($("#box"), {
+					top : _top + "px",
+					left : _left + "px"
+				});
+			}
+			document.onmouseup = function(){
+				document.onmousemove = null;
+				document.onmouseup = null;
+			}
+		}
+	</script>
+</body>
+</html>

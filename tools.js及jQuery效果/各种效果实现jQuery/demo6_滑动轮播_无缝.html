@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		* {margin: 0;padding: 0;}
+		#container {
+			width: 590px;
+			height: 470px;
+			position: relative;
+			margin: 50px auto;
+			overflow: hidden;
+		}
+
+		ul {
+			height: 470px;
+			list-style: none;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		li {
+			width: 590px;
+			height: 470px;
+			float: left;
+		}
+		.pages {
+			width: 590px;
+			height: 30px;
+			position: absolute;
+			bottom: 0;
+			background: #000;
+		}
+		.pages i {
+			display: inline-block;
+			width:20px;
+			height: 20px;
+			border-radius: 10px;
+			background: #fff;
+			margin:5px;
+		}
+
+		.pages i.current {
+			background: #f00;
+		}
+
+		.prev, .next {
+			width: 45px;
+			height: 100px;
+			background: #000;
+			color: #fff;
+			position: absolute;
+			top:0;
+			bottom: 0;
+			margin:auto;
+			text-align: center;
+			line-height: 100px;
+			font-size:40px;
+			cursor: pointer;
+		}
+		.next {
+			right: 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<!-- 图片 -->
+		<ul id="box">
+			<li><a href="#"><img src="images/1.jpg"></a></li>
+			<li><a href="#"><img src="images/2.jpg"></a></li>
+			<li><a href="#"><img src="images/3.jpg"></a></li>
+		</ul>
+		<!-- 小圆点 -->
+		<div class="pages"></div>
+		<!-- 向前/后 -->
+		<div class="prev">&lt;</div>
+		<div class="next">&gt;</div>
+	</div>
+	<script src="jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		var lis = $("li"), // 所有轮播图片
+			len = lis.length, // 图片张数
+			liWidth = $(lis[0]).innerWidth(), // 图片盒子宽度
+			currentIndex = 1,
+			nextIndex = 2,
+			timer = null,
+			duration = 1000;
+		// 克隆第一张与最后一张图片
+		$("#box").append($(lis[0]).clone());
+		$("#box").prepend($(lis[len-1]).clone());
+		// 图片张数加上2;
+		len += 2;
+		// 动态设置ul#box宽度，定位
+		$("#box").css({
+			width: len * liWidth + "px",
+			left: -liWidth + "px"
+		});
+		// 动态添加小圆点
+		var html = "";
+		for (let i = 0; i < len - 2; i++) {
+			html += "<i></i>";
+		}
+		$(".pages").html(html);
+		// 获取所有小圆点
+		var circles = $("i");
+		// 第一个小圆点设置背景
+		$(circles[0]).addClass("current");
+		// 自动轮播
+		timer = setInterval(move, duration);
+		// 切换
+		function move() {
+			// 计算定位
+			var _left = -1 * nextIndex * liWidth;
+			// 运动动画
+			$("#box").animate( {left: _left}, 200, function(){
+				// 运动结束后，继续判断
+				if (nextIndex >= len) {
+					currentIndex = 1;
+					nextIndex = 2;
+					$("#box").css("left",-liWidth);
+				}
+				if (currentIndex <= 0) {
+					currentIndex = len - 2;
+					nextIndex = len - 1;
+					$("#box").css({
+						left:-liWidth * (len-2)
+					});
+				}
+			});
+			/* 修改小圆点样式 */
+			// 找出修改为红色背景的小圆点索引
+			var circleIndex = nextIndex - 1;
+			if (circleIndex >= len - 2)
+				circleIndex = 0;
+			else if (circleIndex <= -1) 
+				circleIndex = len - 3;
+			// 清除所有小圆点所使用类名
+			for (let i = 0; i < len - 2; i++) {
+				$(circles[i]).removeClass("current");
+			}
+			// 将circleIndex索引处小圆点添加上类名
+			$(circles[circleIndex]).addClass("current");
+
+			// 修改索引
+			currentIndex = nextIndex;
+			nextIndex++;
+		}
+
+		/* 移入/出容器 */
+		$("#container").on("mouseenter",function(){
+			clearInterval(timer);
+		});
+		$("#container").on("mouseleave",function(){
+			timer = setInterval(move, duration);
+		});
+
+		/* 移入小圆点事件 */
+		/*for (let i = 0; i < len - 2; i++) {
+			circles[i].onmouseover = function(){
+				nextIndex = i + 1;
+				move();
+			}
+		}*/
+		$(".pages").on("mouseover",function(e){
+			var src = e.target;
+			if (src !== this && src.nodeName === "I") {
+				// 小圆点索引
+				var index = Array.from(circles).indexOf(src);
+				// 即将显示图片的索引
+				nextIndex = index + 1;
+				move();
+			}
+		});
+
+		// 向前/后
+		$(".prev").on("click",function(){
+			nextIndex = currentIndex - 1;
+			move();
+		}); 
+
+		$(".next").on("click",function(){
+			move();
+		}) 
+	</script>
+</body>
+</html>
